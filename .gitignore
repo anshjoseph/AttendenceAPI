@@ -3,3 +3,4 @@ __pycache__
 DataBaseController/__pycache__/*
 .vscode
 *.sql
+env/

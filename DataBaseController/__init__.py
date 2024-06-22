@@ -2,12 +2,15 @@ import sqlite3
 from sqlite3 import IntegrityError
 from uuid import uuid4
 from hashlib import sha256
+from DataBaseController.logger import configure_logger
 # import zlib
 
+logger  = configure_logger(__name__)
 class DBController:
    
     def __init__(self,path:str) -> None:
         self.path = path
+        logger.info(f"connecting to DB: {self.path}")
         self.db_connection= sqlite3.connect(self.path,check_same_thread=False)
         self.db_cursor = self.db_connection.cursor()
     def make_migration(self):
@@ -16,6 +19,7 @@ class DBController:
         self.db_cursor.execute("CREATE TABLE if not exists Attendence_Record(id text unique, te_id text, st_id text, datetime real)")
         self.db_cursor.execute("CREATE TABLE if not exists Login_Token(id text unique, user_id text unique, datetime real, login_type int)")
         self.db_cursor.execute("CREATE TABLE if not exists ImageStore(id text unique, user_id text ,data text)")
+        logger.info("creating the database and migrating the tables")
 
 
     def add_login_token(self,user_id:str,login_type:int):
@@ -110,11 +114,11 @@ class DBController:
         else:
             return ()
     # TODO: add compression method
-    def add_image_student(self,login_token:str,image:bytes):
+    def add_image_student(self,login_token:str,image:str):
         ch_login = self.check_login(login_token)
         if ch_login[0]:
             self.db_cursor.execute(f"DELETE FROM ImageStore where user_id = '{ch_login[1]}'")
-            self.db_cursor.execute(f"INSERT INTO ImageStore(id,user_id,data) VALUES ('{uuid4()}','{ch_login[1]}','{image.decode()}')")
+            self.db_cursor.execute(f"INSERT INTO ImageStore(id,user_id,data) VALUES ('{uuid4()}','{ch_login[1]}','{image}')")
             self.db_connection.commit()
             return True
         else:

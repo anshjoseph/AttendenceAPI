@@ -30,3 +30,7 @@ class Student_Add_Attendence(BaseModel):
 class User_Image_Set(BaseModel):
     login_token:str
     image:str
+
+class User_Image_Verify(BaseModel):
+    login_token:str
+    image:str
